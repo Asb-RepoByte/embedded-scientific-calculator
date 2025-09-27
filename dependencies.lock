@@ -1,0 +1,18 @@
+dependencies:
+  idf:
+    source:
+      type: idf
+    version: 5.1.6
+  nopnop2002/st7789:
+    component_hash: 09235374ff43517a5a0556e71e19cbca00e7337d6fc9ecc9d0089b9a6c5166e5
+    dependencies: []
+    source:
+      git: https://github.com/nopnop2002/esp-idf-st7789.git
+      path: components/st7789/
+      type: git
+    version: 2028dbabcde2f67b7c47343abe2969c66ea31238
+direct_dependencies:
+- nopnop2002/st7789
+manifest_hash: 50c9e6f178e46a517d24d31c2c7fb331d70e62eb8da087c2b1db795f7d27013e
+target: esp32
+version: 2.0.0
