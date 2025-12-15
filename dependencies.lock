@@ -2,9 +2,10 @@ dependencies:
   idf:
     source:
       type: idf
-    version: 5.1.6
+    version: 5.5.1
   nopnop2002/st7789:
-    component_hash: 09235374ff43517a5a0556e71e19cbca00e7337d6fc9ecc9d0089b9a6c5166e5
+    component_hash: 
+      09235374ff43517a5a0556e71e19cbca00e7337d6fc9ecc9d0089b9a6c5166e5
     dependencies: []
     source:
       git: https://github.com/nopnop2002/esp-idf-st7789.git

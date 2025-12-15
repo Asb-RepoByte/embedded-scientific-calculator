@@ -11,6 +11,9 @@
 #define MAX_EXP_SIZE 1000
 #define MAX_PARAMETERS 2
 
+#define PI 3.141592653589793
+#define E 2.718281828459045
+
 // token types
 typedef enum {
     TOK_INT,
@@ -18,10 +21,13 @@ typedef enum {
     TOK_FUNC,
     TOK_SYMBOL,
     TOK_NEGATE,
+    TOK_CONST,
     TOK_UNKNOWN
 } TokenType;
 
 typedef enum {
+    FUNC_PI,
+    FUNC_E,
     FUNC_SQRT,
     FUNC_POW,
     FUNC_SIN,

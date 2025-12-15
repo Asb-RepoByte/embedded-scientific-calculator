@@ -27,7 +27,7 @@ static KBD kbd_sing = {
     .keymaps = {
         // layer 0
         {
-            { { KEY_TYPE_CHAR, "0", NULL}, { KEY_TYPE_CHAR, ".", NULL }, { KEY_TYPE_FUNC, "", NULL }, { KEY_TYPE_FUNC, "", func_evaluate } },        // row0
+            { { KEY_TYPE_CHAR, "0", NULL}, { KEY_TYPE_CHAR, ".", NULL }, { KEY_TYPE_CHAR, "PI", NULL }, { KEY_TYPE_FUNC, "", func_evaluate } },        // row0
             { { KEY_TYPE_CHAR, "7", NULL}, { KEY_TYPE_CHAR, "8", NULL }, { KEY_TYPE_CHAR, "9", NULL }, { KEY_TYPE_CHAR, "-", NULL } },          // row1
             { { KEY_TYPE_CHAR, "4", NULL}, { KEY_TYPE_CHAR, "5", NULL }, { KEY_TYPE_CHAR, "6", NULL }, { KEY_TYPE_CHAR, "+", NULL } },          // row2
             { { KEY_TYPE_CHAR, "1", NULL}, { KEY_TYPE_CHAR, "2", NULL }, { KEY_TYPE_CHAR, "3", NULL }, { KEY_TYPE_CHAR, "*", NULL } },          // row3

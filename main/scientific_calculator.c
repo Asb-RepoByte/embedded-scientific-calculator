@@ -33,8 +33,8 @@
 // for lcdst7789 gpios
 #define GPIO_SCLK 18
 #define GPIO_MOSI 23
-#define GPIO_RESET 4
-#define GPIO_DC 2
+#define GPIO_RESET 22
+#define GPIO_DC 3
 #define GPIO_CS -1
 #define GPIO_BL -1
 #define GPIO_MISO -1
@@ -49,23 +49,27 @@
 
 #define ADJUST_X(x) (DIS_WIDTH - x)
 
+#define HOLD_GAP 500 //ms half a second
+
 
 // gpio maps
 // gpio reserved for LCD spi 2:DC, 4:RES, 18:SCK, 23:MOSI (2, 4, 18, 23)
-// cols -> input  (pulldown)                              (15, 16, 17, 5)
-// rows -> output (set to 1{HIGH} to indicate a press)    (12, 14, 27, 25, 33, 32) gpio26 have been skiped due to a loose connection in the breadboard
+
+// cols -> input  (pulldown)                              (26, 27, 14, 12)
+// rows -> output (set to 1{HIGH} to indicate a press)    (15, 2, 0, 4, 16, 17) gpio26 have been skiped due to a loose connection in the breadboard
+
 
 void handle_key(int row, int col);
 
 
 void vReadKBD(void *vpParameter) {
 
-    TickType_t updateTime = pdMS_TO_TICKS(150);
+    TickType_t updateTime = pdMS_TO_TICKS(20);
     TickType_t lastWake = xTaskGetTickCount();
 
 
-    const gpio_num_t cols_gpio[COL_NUM] = {15, 16, 17, 5}; 
-    const gpio_num_t rows_gpio[ROW_NUM] = {12, 14, 27, 25, 33, 32};
+    const gpio_num_t cols_gpio[COL_NUM] = {26, 27, 14, 12}; 
+    const gpio_num_t rows_gpio[ROW_NUM] = {15, 2, 4, 0, 16, 17};
 
     for (uint8_t r = 0; r < ROW_NUM; r++) {
         gpio_reset_pin(rows_gpio[r]);
@@ -78,17 +82,27 @@ void vReadKBD(void *vpParameter) {
         gpio_set_pull_mode(cols_gpio[c], GPIO_PULLDOWN_ENABLE); // gpio34-39 can only be pulldown not up
     }
 
+    char kdb_value_prev[ROW_NUM][COL_NUM] = {0};
     char kdb_value[ROW_NUM][COL_NUM] = {0};
     ESP_LOGI("kbd", "hello there this is me no doubt just to make it long and apparent");
 
+    bool should_restart_timer = false;
+    int64_t last_time = esp_timer_get_time();
+    int64_t current_time = esp_timer_get_time();
+
     
     for (;;) {
+        should_restart_timer = false;
         for (uint8_t r = 0; r < ROW_NUM; r++) {
             gpio_set_level(rows_gpio[r], 1);
             for (uint8_t c = 0; c < COL_NUM; c++) {
+                current_time = esp_timer_get_time();
+                kdb_value_prev[r][c] = kdb_value[r][c];
                 kdb_value[r][c] = gpio_get_level(cols_gpio[c]);
-                if (kdb_value[r][c] == 1) {
+                if (kdb_value[r][c] == 1 && (kdb_value_prev[r][c] == 0 || (current_time - last_time) / 1000.0f > HOLD_GAP)) {
+                    should_restart_timer = true;
                     handle_key(r, c);
+                    ESP_LOGI("time", "[%f]", (current_time - last_time) / 1000.0f);
                     ESP_LOGI("kbd", "[%d], [%d]: pressed", r, c);
                     ESP_LOGI("expr", "%s", expr_get_str(expr_get()));
                 }
@@ -96,6 +110,8 @@ void vReadKBD(void *vpParameter) {
             }
             gpio_set_level(rows_gpio[r], 0);
         }
+        if (should_restart_timer)
+            last_time = current_time;
         vTaskDelayUntil(&lastWake, updateTime);
     }
     

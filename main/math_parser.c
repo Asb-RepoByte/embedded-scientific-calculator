@@ -26,6 +26,10 @@ static TreeNode* node_new(Token tok, TreeNode* l, TreeNode* r) {
     if (tok.type == TOK_INT || tok.type == TOK_FLOAT) {
         n->f_value = atof(tok.value);
     }
+    if (tok.type == TOK_CONST && tok.func == FUNC_PI) {
+        n->f_value = PI;
+    }
+        
     return n;
 }
 
@@ -42,6 +46,7 @@ static double node_eval(TreeNode* n) {
     switch (n->token.type) {
         case TOK_INT:
         case TOK_FLOAT:
+        case TOK_CONST:
             return n->f_value;
         case TOK_SYMBOL:
             switch (n->token.value[0]) {
@@ -53,7 +58,7 @@ static double node_eval(TreeNode* n) {
                         return -node_eval(n->left);
                 case '*': return node_eval(n->left) * node_eval(n->right);
                 case '/': return node_eval(n->left) / node_eval(n->right);
-                default: return 0;
+                default: { printf("symbol dead end\n"); return 0; }
             }
         case TOK_FUNC:
             switch (n->token.func) {
@@ -69,10 +74,10 @@ static double node_eval(TreeNode* n) {
                 case FUNC_LN:    return log(node_eval(n->pars[0]));
                 case FUNC_LOG2:  return log2(node_eval(n->pars[0]));
                 case FUNC_LOG10: return log10(node_eval(n->pars[0]));
-                default: return 0;
+                default: {printf("func: dead end\n"); return 0; }
             }
         default:
-            return 0;
+            { printf("type dead end\n"); return 0; }
     }
 }
 
@@ -102,7 +107,7 @@ static TreeNode* parseT(ParserCtx* ctx) {
 }
 
 static TreeNode* parseF(ParserCtx* ctx) {
-    if (ctx->nextToken.type == TOK_INT || ctx->nextToken.type == TOK_FLOAT) {
+    if (ctx->nextToken.type == TOK_INT || ctx->nextToken.type == TOK_FLOAT || ctx->nextToken.type == TOK_CONST) {
         Token t = ctx->nextToken;
         scanToken(ctx);
         return node_new(t, NULL, NULL);
@@ -198,6 +203,9 @@ static int scanToken(ParserCtx* ctx) {
             else if (str_eq(buf,"log2")) ctx->nextToken.func = FUNC_LOG2;
             else if (str_eq(buf,"log10"))ctx->nextToken.func = FUNC_LOG10;
             else                         ctx->nextToken.func = FUNC_EMPTY;
+
+            if (str_eq(buf, "PI")) { ctx->nextToken.type = TOK_CONST; ctx->nextToken.func = FUNC_PI; }
+            if (str_eq(buf, "E")) { ctx->nextToken.type = TOK_CONST; ctx->nextToken.func = FUNC_E; }
             return 0;
         }
 
